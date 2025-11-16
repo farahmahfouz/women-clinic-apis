@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { default: mongoose } = require('mongoose');
+const  mongoose  = require('mongoose');
 const app = require('./app');
 
 const DB = process.env.DATABASE_URL.replace(

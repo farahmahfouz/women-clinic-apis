@@ -1,15 +1,22 @@
-const express = require("express");
-const cookieParser = require('cookie-parser')
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const AppError = require('./utils/appError');
+const morgan = require('morgan');
 
 const userRoute = require('./routes/userRoute');
-const AppError = require("./utils/AppError");
 
 const app = express();
 
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Server is working!");
+app.use(cookieParser());
+
+app.get('/', (req, res) => {
+  res.send('Server is working!');
 });
 
 app.use('/api/v1/user', userRoute);
