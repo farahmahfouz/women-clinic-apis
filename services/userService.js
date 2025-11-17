@@ -4,14 +4,14 @@ const AppError = require('../utils/appError');
 exports.getAllUsers = async () => {
   const users = await User.find();
   if (!users) {
-    throw new AppError('No users found');
+    throw new AppError('No users found', 404);
   }
   return users;
 };
 
 exports.getOneUser = async (id) => {
   const user = await User.findById(id);
-  if (!user) throw new AppError('No User Found', 400);
+  if (!user) throw new AppError('No User Found', 404);
   return user;
 };
 

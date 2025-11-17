@@ -2,9 +2,10 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
 const morgan = require('morgan');
+const errorHandler = require('./middlewares/errorHandler');
 
 const userRoute = require('./routes/userRoute');
-const errorHandler = require('./middlewares/errorHandler');
+const serviceRoute = require('./routes/serviceRoute');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/user', userRoute);
+app.use('/api/v1/service', serviceRoute);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

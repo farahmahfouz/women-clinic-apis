@@ -8,7 +8,7 @@ exports.getUsers = catchAsync(async (req, res) => {
     status: 'success',
     results: users.length,
     message: 'Users fetched successfully',
-    data: users,
+    data: { users },
   });
 });
 
@@ -17,7 +17,7 @@ exports.getOneUser = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',
     message: 'User found successfully',
-    data: user,
+    data: { user },
   });
 });
 
@@ -28,7 +28,7 @@ exports.createUser = catchAsync(async (req, res) => {
   res.status(201).json({
     status: 'success',
     message: 'User created successfully',
-    data: user,
+    data: { user },
   });
 });
 
@@ -37,28 +37,28 @@ exports.updateUser = catchAsync(async (req, res) => {
   res.status(200).json({
     status: 'success',
     message: 'User updated successfully',
-    data: user,
+    data: { user },
   });
 });
 
-exports.deleteUser = catchAsync(async(req, res) => {
-   await userService.deleteUser(req.params.id);
-   res.status(200).json({
+exports.deleteUser = catchAsync(async (req, res) => {
+  await userService.deleteUser(req.params.id);
+  res.status(200).json({
     status: 'success',
-    message: 'User deleted successfully'
-   })
-})
+    message: 'User deleted successfully',
+  });
+});
 
-exports.getMe = catchAsync(async(req, res, next) => {
+exports.getMe = catchAsync(async (req, res, next) => {
   req.params.id = req.user.id;
   next();
-})
+});
 
-exports.updateMe = catchAsync(async(req, res) => {
+exports.updateMe = catchAsync(async (req, res) => {
   const user = await userService.updateMe(req.user.id, req.body);
   res.status(200).json({
     status: 'success',
     message: 'Updated successfully',
-    data: user
-  })
-})
+    data: { user },
+  });
+});
