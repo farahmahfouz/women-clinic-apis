@@ -25,8 +25,14 @@ const serviceSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+serviceSchema.virtual('options', {
+  ref: 'SubServiceOption',
+  foreignField: 'service',
+  localField: '_id',
+});
 
 serviceSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });

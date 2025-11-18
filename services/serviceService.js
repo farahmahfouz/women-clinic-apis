@@ -2,7 +2,7 @@ const Service = require('../models/serviceModel');
 const AppError = require('../utils/appError');
 
 exports.getAllServices = async () => {
-  const services = await Service.find();
+  const services = await Service.find().populate('options');
   return services;
 };
 
@@ -31,7 +31,6 @@ exports.updateService = async (id, data) => {
 };
 
 exports.deleteService = async (id) => {
-  const serviceExist = await Service.findById(id);
-  if (serviceExist) throw new AppError('Service already exist', 400);
-  await Service.findByIdAndDelete(id);
+  const service = await Service.findByIdAndDelete(id);
+  if (!service) throw new AppError('Service not found', 404);
 };
