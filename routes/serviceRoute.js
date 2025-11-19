@@ -6,10 +6,13 @@ const {
   updateService,
   deleteService,
 } = require('../controllers/serviceController');
+const reviewRouter = require('./reviewRoute');
 
 const { auth, protectTo } = require('../middlewares/authMiddlerware');
 
 const router = Router();
+
+router.use('/:serviceId/reviews', reviewRouter);
 
 // ---------- Public Routes ----------
 router.get('/', getAllServices);

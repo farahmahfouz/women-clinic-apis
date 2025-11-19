@@ -7,6 +7,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const userRoute = require('./routes/userRoute');
 const serviceRoute = require('./routes/serviceRoute');
 const serviceOptionRoute = require('./routes/serviceOptionRoute');
+const reviewRoute = require('./routes/reviewRoute');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/service', serviceRoute);
 app.use('/api/v1/sub-service', serviceOptionRoute);
+app.use('/api/v1/review', reviewRoute);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

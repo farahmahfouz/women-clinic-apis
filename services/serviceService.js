@@ -7,7 +7,7 @@ exports.getAllServices = async () => {
 };
 
 exports.getOneService = async (id) => {
-  const service = await Service.findById(id);
+  const service = await Service.findById(id).populate('review');
   if (!service) throw new AppError('Service not found', 404);
   return service;
 };

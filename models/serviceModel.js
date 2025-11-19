@@ -29,7 +29,13 @@ const serviceSchema = new mongoose.Schema(
 );
 
 serviceSchema.virtual('options', {
-  ref: 'SubServiceOption',
+  ref: 'ServiceOption',
+  foreignField: 'service',
+  localField: '_id',
+});
+
+serviceSchema.virtual('review', {
+  ref: 'Review',
   foreignField: 'service',
   localField: '_id',
 });
