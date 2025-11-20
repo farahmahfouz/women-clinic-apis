@@ -17,10 +17,7 @@ exports.createReview = async (data) => {
 };
 
 exports.updateReview = async (id, data) => {
-  const review = await Review.findByIdAndUpdate(id, data, {
-    new: true,
-    runValidators: true,
-  });
+  const review = await Review.findByIdAndUpdate(id, data);
 
   if (!review) throw new AppError('Review not found', 404);
   return review;
