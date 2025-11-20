@@ -13,9 +13,11 @@ const { login, signup } = require('../controllers/authController');
 
 const router = Router();
 
+// ---------- Public Routes ----------
 router.post('/signup', signup);
 router.post('/login', login);
 
+// ---------- Protected Routes ----------
 router.use(auth);
 
 router.get('/me', getMe, getOneUser);
