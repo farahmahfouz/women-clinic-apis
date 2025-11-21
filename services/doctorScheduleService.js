@@ -25,21 +25,32 @@ exports.createDrSchedule = async (data) => {
   if (existDrScheduale)
     throw new AppError('Schedule already exists for this doctor', 400);
 
-  if (data.workingHours) {
-    const { start, end } = data.workingHours;
-    if (start && end && start >= end)
-      throw new AppError('Working hours must be valid (start < end)', 400);
+  if (data.availability) {
+    data.availability.forEach((dayObj) => {
+      dayObj.slots.forEach((slot) => {
+        if (slot.start >= slot.end)
+          throw new AppError(
+            `Invalid time slot (${slot.start} >= ${slot.end})`,
+            400
+          );
+      });
+    });
   }
-
   const schedule = await DoctorSchedule.create(data);
   return schedule;
 };
 
 exports.updateDrSchedule = async (id, data) => {
-  if (data.workingHours) {
-    const { start, end } = data.workingHours;
-    if (start && end && start >= end)
-      throw new AppError('Working hours must be valid (start < end)', 400);
+  if (data.availability) {
+    data.availability.forEach((dayObj) => {
+      dayObj.slots.forEach((slot) => {
+        if (slot.start >= slot.end)
+          throw new AppError(
+            `Invalid time slot (${slot.start} >= ${slot.end})`,
+            400
+          );
+      });
+    });
   }
 
   const existingSchedule = await DoctorSchedule.findById(id);

@@ -10,8 +10,12 @@ const {
 } = require('../controllers/userController');
 const { auth, protectTo } = require('../middlewares/authMiddlerware');
 const { login, signup } = require('../controllers/authController');
+const bookingRouter = require('./bookingRoute');
 
 const router = Router();
+
+router.use('/:patientId/patient-bookings', bookingRouter);
+router.use('/:doctorId/bookings', bookingRouter);
 
 // ---------- Public Routes ----------
 router.post('/signup', signup);

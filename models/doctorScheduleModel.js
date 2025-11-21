@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const doctorScheduleSchema = new mongoose.Schema(
   {
     doctor: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.ObjectId,
       ref: 'User',
       required: true,
     },
@@ -13,10 +13,22 @@ const doctorScheduleSchema = new mongoose.Schema(
         enum: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
       },
     ],
-    workingHours: {
-      start: { type: String, match: /^\d{2}:\d{2}$/ },
-      end: { type: String, match: /^\d{2}:\d{2}$/ },
-    },
+    availability: [
+      {
+        day: {
+          type: String,
+          enum: ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+          required: true,
+        },
+        slots: [
+          {
+            start: { type: String, match: /^\d{2}:\d{2}$/ },
+            end: { type: String, match: /^\d{2}:\d{2}$/ },
+          },
+        ],
+      },
+    ],
+
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

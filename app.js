@@ -10,6 +10,7 @@ const serviceOptionRoute = require('./routes/serviceOptionRoute');
 const reviewRoute = require('./routes/reviewRoute');
 const settingRoute = require('./routes/settingRoute');
 const doctorSchedualeRoute = require('./routes/doctorSchedualeRoute');
+const bookingRoute = require('./routes/bookingRoute');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/v1/sub-service', serviceOptionRoute);
 app.use('/api/v1/review', reviewRoute);
 app.use('/api/v1/settings', settingRoute);
 app.use('/api/v1/doctor-schedule', doctorSchedualeRoute);
+app.use('/api/v1/booking', bookingRoute);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
