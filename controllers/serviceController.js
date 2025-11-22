@@ -2,7 +2,7 @@ const serviceService = require('../services/serviceService');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllServices = catchAsync(async (req, res, next) => {
-  const services = await serviceService.getAllServices();
+  const services = await serviceService.getAllServices(req.query);
 
   res.status(200).json({
     status: 'success',

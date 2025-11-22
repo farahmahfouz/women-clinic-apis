@@ -1,8 +1,18 @@
 const Service = require('../models/serviceModel');
 const AppError = require('../utils/appError');
+const APIFeatures = require('../utils/apiFeatures');
 
-exports.getAllServices = async () => {
-  const services = await Service.find().populate('options');
+exports.getAllServices = async (queryString = {}) => {
+  let query = Service.find().populate('options');
+
+  const features = new APIFeatures(query, queryString)
+    .filter()
+    .search()
+    .sort()
+    .limitFields()
+    .pagination();
+
+  const services = await features.query;
   return services;
 };
 
