@@ -29,11 +29,17 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: [true, 'Phone is required'],
+      validate: {
+        validator: function (value) {
+          return /^\+20\d{10}$/.test(value);
+        },
+        message:
+          'Phone number must start with +20 and contain 10 digits after it',
+      },
     },
   },
   { timestamps: true }
 );
-
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
