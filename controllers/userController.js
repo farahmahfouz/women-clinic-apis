@@ -1,5 +1,7 @@
 const catchAsync = require('../utils/catchAsync');
+const SMSService = require('../utils/smsService');
 const userService = require('../services/userService');
+
 
 //:TODO: handle flitering on this route soon
 exports.getUsers = catchAsync(async (req, res) => {

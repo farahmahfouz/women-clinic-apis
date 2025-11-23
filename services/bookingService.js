@@ -110,66 +110,65 @@ exports.getMonthlyBooking = async (year) => {
   return stats;
 };
 
-
 exports.getMostBookedServices = async (req, res) => {
   const stats = await Booking.aggregate([
-    { $unwind: "$services" },
+    { $unwind: '$services' },
 
     {
       $group: {
-        _id: "$services.serviceOption",
+        _id: '$services.serviceOption',
         count: { $sum: 1 },
-        totalRevenue: { $sum: "$services.price" }
-      }
+        totalRevenue: { $sum: '$services.price' },
+      },
     },
 
     // 1️⃣ Lookup to get ServiceOption data
     {
       $lookup: {
-        from: "serviceoptions",
-        let: { optionId: "$_id" },
+        from: 'serviceoptions',
+        let: { optionId: '$_id' },
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ["$_id", "$$optionId"] }
-            }
-          }
+              $expr: { $eq: ['$_id', '$$optionId'] },
+            },
+          },
         ],
-        as: "serviceOptionInfo"
-      }
+        as: 'serviceOptionInfo',
+      },
     },
-    { $unwind: "$serviceOptionInfo" },
+    { $unwind: '$serviceOptionInfo' },
 
     // 2️⃣ Lookup to get the actual Service name
     {
       $lookup: {
-        from: "services",
-        let: { serviceId: "$serviceOptionInfo.service" },
+        from: 'services',
+        let: { serviceId: '$serviceOptionInfo.service' },
         pipeline: [
           {
             $match: {
-              $expr: { $eq: ["$_id", "$$serviceId"] }
-            }
-          }
+              $expr: { $eq: ['$_id', '$$serviceId'] },
+            },
+          },
         ],
-        as: "serviceInfo"
-      }
+        as: 'serviceInfo',
+      },
     },
-    { $unwind: "$serviceInfo" },
+    { $unwind: '$serviceInfo' },
 
     {
       $project: {
         _id: 0,
-        optionName: "$serviceOptionInfo.optionName",
-        serviceName: "$serviceInfo.name", 
-        type: "$serviceOptionInfo.type",
-        price: "$serviceOptionInfo.price",
+        optionName: '$serviceOptionInfo.optionName',
+        serviceName: '$serviceInfo.name',
+        type: '$serviceOptionInfo.type',
+        price: '$serviceOptionInfo.price',
         count: 1,
-        totalRevenue: 1
-      }
+        totalRevenue: 1,
+      },
     },
 
-    { $sort: { count: -1 } }
+    { $sort: { count: -1 } },
   ]);
-  return stats
+  return stats;
 };
