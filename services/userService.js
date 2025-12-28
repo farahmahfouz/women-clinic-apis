@@ -1,11 +1,18 @@
 const User = require('../models/userModel');
+const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 
-exports.getAllUsers = async () => {
-  const users = await User.find();
-  if (!users) {
-    throw new AppError('No users found', 404);
-  }
+exports.getAllUsers = async (queryString = {}) => {
+  let query = User.find();
+
+  const features = new APIFeatures(query, queryString)
+    .filter()
+    .search()
+    .sort()
+    .limitFields()
+    .pagination();
+
+  const users = await features.query;
   return users;
 };
 

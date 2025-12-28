@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -37,9 +38,18 @@ const userSchema = new mongoose.Schema(
           'Phone number must start with +20 and contain 10 digits after it',
       },
     },
+    changePasswordAt: Date,
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   { timestamps: true }
 );
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.changePasswordAt = Date.now() - 1000;
+  next();
+});
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -52,6 +62,26 @@ userSchema.methods.comparePassword = async function (
   userPassword
 ) {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if(this.changePasswordAt) {
+    const changeTimestamp = parseInt(this.changePasswordAt.getTime() / 1000, 10);
+    return JWTTimestamp < changeTimestamp;
+  }
+  return false;
+}
+
+userSchema.methods.createPasswordResetToken = function () {
+  // This is the token that will be sent to the user's email
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  // This is the token that will be stored in the database
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);

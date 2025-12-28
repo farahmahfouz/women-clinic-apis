@@ -21,6 +21,9 @@ exports.auth = async (req, res, next) => {
     const user = await User.findById(decoded.id);
 
     if (!user) return next(new AppError('User not found', 404));
+
+    if (user.changedPasswordAfter(decoded.iat)) return next(new AppError('Password changed recently, please login again!', 401));
+
     req.user = user;
     next();
   } catch (error) {

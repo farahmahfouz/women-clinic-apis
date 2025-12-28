@@ -1,11 +1,8 @@
 const catchAsync = require('../utils/catchAsync');
-const SMSService = require('../utils/smsService');
 const userService = require('../services/userService');
 
-
-//:TODO: handle flitering on this route soon
 exports.getUsers = catchAsync(async (req, res) => {
-  const users = await userService.getAllUsers();
+  const users = await userService.getAllUsers(req.query);
   res.status(200).json({
     status: 'success',
     results: users.length,
@@ -23,8 +20,6 @@ exports.getOneUser = catchAsync(async (req, res) => {
   });
 });
 
-//TODO: handle activation on this route
-// This is only for admin to create account to employees and doctors
 exports.createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
   res.status(201).json({

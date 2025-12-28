@@ -33,7 +33,27 @@ exports.signup = catchAsync(async (req, res) => {
 });
 
 exports.login = catchAsync(async (req, res) => {
-    const userData = req.body;
-    const user = await authService.login(userData);
-    createSendToken(user, 200, res);
+  const userData = req.body;
+  const user = await authService.login(userData);
+  createSendToken(user, 200, res);
+});
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+
+  const response = await authService.forgotPassword(email, req);
+
+  res.status(200).json({
+    status: 'success',
+    message: response.message,
+  });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const user = await authService.resetPassword(token, password);
+
+  createSendToken(user, 200, res);
 });

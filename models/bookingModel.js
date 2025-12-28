@@ -65,7 +65,7 @@ const bookingSchema = new mongoose.Schema(
 );
 
 bookingSchema.pre(/^find/, function (next) {
-  this.populate('user', 'name')
+  this.populate('user', 'name phone')
     .populate('doctor', 'name')
     .populate('services.serviceOption', 'optionName price type');
   next();

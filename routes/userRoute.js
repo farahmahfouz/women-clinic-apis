@@ -9,7 +9,7 @@ const {
   updateMe,
 } = require('../controllers/userController');
 const { auth, protectTo } = require('../middlewares/authMiddlerware');
-const { login, signup } = require('../controllers/authController');
+const { login, signup, forgotPassword, resetPassword } = require('../controllers/authController');
 const bookingRouter = require('./bookingRoute');
 
 const router = Router();
@@ -20,6 +20,9 @@ router.use('/:doctorId/bookings', bookingRouter);
 // ---------- Public Routes ----------
 router.post('/signup', signup);
 router.post('/login', login);
+
+router.post('/forgotPassword', forgotPassword);
+router.patch('/resetPassword/:token', resetPassword);
 
 // ---------- Protected Routes ----------
 router.use(auth);
