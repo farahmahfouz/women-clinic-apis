@@ -57,3 +57,10 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   createSendToken(user, 200, res);
 });
+
+exports.logout = catchAsync(async (req, res) => {
+  await authService.logout(req, res);
+  res.status(200).json({
+    status: 'success',
+  });
+});
