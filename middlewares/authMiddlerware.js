@@ -15,7 +15,7 @@ exports.auth = async (req, res, next) => {
       token = req.cookies.jwt;
     }
 
-    if (!token) return next(new AppError('Unauthorized', 401));
+    if (!token) return next(new AppError('Please log in to get access', 401));
 
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);

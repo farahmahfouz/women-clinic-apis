@@ -85,3 +85,12 @@ exports.logout = async (req, res) => {
   });
   return true;
 }
+
+exports.changeMyPassword = async(id, currentPassword, newPassword) => {
+  const user = await User.findById(id).select('+password');
+  
+  if(!(await user.comparePassword(currentPassword, user.password))) throw new AppError('Incorrect password', 401);
+  user.password = newPassword;
+  await user.save();
+  return user;
+}

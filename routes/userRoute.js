@@ -9,7 +9,7 @@ const {
   updateMe,
 } = require('../controllers/userController');
 const { auth, protectTo } = require('../middlewares/authMiddlerware');
-const { login, signup, forgotPassword, resetPassword, logout } = require('../controllers/authController');
+const { login, signup, forgotPassword, resetPassword, logout, changeMyPassword } = require('../controllers/authController');
 const bookingRouter = require('./bookingRoute');
 
 const router = Router();
@@ -30,6 +30,7 @@ router.use(auth);
 
 router.get('/me', getMe, getOneUser);
 router.patch('/updateMe', updateMe);
+router.patch('/changeMyPassword', changeMyPassword);
 
 router.use(protectTo('admin'));
 

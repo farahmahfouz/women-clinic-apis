@@ -64,3 +64,9 @@ exports.logout = catchAsync(async (req, res) => {
     status: 'success',
   });
 });
+
+exports.changeMyPassword = catchAsync(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const user = await authService.changeMyPassword(req.user.id, currentPassword, newPassword);
+  createSendToken(user, 200, res);
+});
