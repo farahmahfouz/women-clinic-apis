@@ -3,7 +3,12 @@ const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
 const morgan = require('morgan');
 const errorHandler = require('./middlewares/errorHandler');
-
+const helmet = require('helmet');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 const userRoute = require('./routes/userRoute');
 const serviceRoute = require('./routes/serviceRoute');
 const serviceOptionRoute = require('./routes/serviceOptionRoute');
@@ -15,6 +20,22 @@ const notificationRoute = require('./routes/notificationRoute');
 
 const app = express();
 
+// 🔒 Security Headers
+app.use(helmet());
+
+app.use(cors({
+  origin: process.env.CLIENT_URL || "*",
+  credentials: true,
+}));
+
+// 🚦 Rate Limiting
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour!',
+});
+app.use('/api', limiter);
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -23,9 +44,16 @@ app.use(express.json());
 
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
-  res.send('Server is working!');
-});
+// 🛡️ Data Sanitization
+app.use(mongoSanitize());
+app.use(xss());
+
+// 🚫 Parameter Pollution Protection
+app.use(
+  hpp({
+    whitelist: ['receiver', 'type', 'title', 'message', 'data'],
+  })
+);
 
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/service', serviceRoute);
