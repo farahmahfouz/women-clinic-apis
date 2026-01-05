@@ -1,7 +1,8 @@
 const Booking = require('../models/bookingModel');
 const AppError = require('../utils/appError');
+const NotificationService = require('./notificationService');
 
-exports.createBooking = async (data) => {
+exports.createBooking = async (data, io = null) => {
   const { doctor, dateOfService, timeSlot } = data;
 
   await Booking.validateDoctorAvailability(doctor, dateOfService, timeSlot);
@@ -15,6 +16,26 @@ exports.createBooking = async (data) => {
   if (conflict) throw new AppError('Doctor already booked at this time', 400);
 
   const booking = await Booking.create(data);
+
+  try {
+    await NotificationService.createNotification({
+      receiver: booking.doctor,
+      type: 'new_booking',
+      title: 'New Booking',
+      message: `New booking on ${booking.dateOfService}`,
+      data: { bookingId: booking._id },
+    }, io);
+
+    await NotificationService.createNotification({
+      receiver: booking.user,
+      type: 'booking_confirmed',
+      title: 'Booking Confirmed',
+      message: `Your booking is confirmed for ${booking.dateOfService}`,
+      data: { bookingId: booking._id },
+    }, io);
+  } catch (err) {
+    console.error('Notification failed:', err.message);
+  }
 
   return booking;
 };
@@ -44,7 +65,7 @@ exports.updateBooking = async (id, updates) => {
   await Booking.validateDoctorAvailability(booking.doctor, newDate, newTime);
 
   const conflict = await Booking.findOne({
-    doctor: booking.doctor,
+    user: booking.user,
     dateOfService: newDate,
     'timeSlot.start': newTime.start,
     _id: { $ne: id },
@@ -59,12 +80,32 @@ exports.updateBooking = async (id, updates) => {
   return booking;
 };
 
-exports.cancelBooking = async (id) => {
+exports.cancelBooking = async (id, io = null) => {
   const booking = await Booking.findById(id);
   if (!booking) throw new AppError('Booking not found', 404);
 
   booking.status = 'cancelled';
   await booking.save();
+
+  try {
+    await NotificationService.createNotification({
+      receiver: booking.doctor,
+      type: 'booking_cancelled',
+      title: 'Booking Cancelled',
+      message: `Booking on ${booking.dateOfService} was cancelled`,
+      data: { bookingId: booking._id },
+    }, io);
+
+    await NotificationService.createNotification({
+      receiver: booking.user,
+      type: 'booking_cancelled',
+      title: 'Booking Cancelled',
+      message: `Your booking has been cancelled`,
+      data: { bookingId: booking._id },
+    }, io);
+  } catch (err) {
+    console.error('Notification failed:', err.message);
+  }
 
   return booking;
 };

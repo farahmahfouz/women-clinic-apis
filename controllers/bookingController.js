@@ -9,7 +9,8 @@ exports.setBookingIds = (req, res, next) => {
 };
 
 exports.createBooking = catchAsync(async (req, res) => {
-  const booking = await BookingService.createBooking(req.body);
+  const io = req.app.get('io');
+  const booking = await BookingService.createBooking(req.body, io);
   res.status(200).json({
     status: 'success',
     message: 'Booking created successfully',
@@ -56,7 +57,8 @@ exports.updateBooking = catchAsync(async (req, res) => {
 });
 
 exports.cancelBooking = catchAsync(async (req, res) => {
-  const Booking = await BookingService.cancelBooking(req.params.id);
+  const io = req.app.get('io');
+  const Booking = await BookingService.cancelBooking(req.params.id, io);
   res.status(204).json({
     status: 'success',
     message: 'Booking deleted successfully',
