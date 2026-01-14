@@ -11,6 +11,9 @@ exports.signup = async (userData) => {
   const existingUser = await User.findOne({ email: userData?.email });
   if (existingUser) throw new AppError('User already exists', 400);
 
+  const existingUsername = await User.findOne({ username: userData?.username });
+  if (existingUsername) throw new AppError('Username already taken', 400);
+
   const payload = { ...userData, role: 'patient' };
   const newUser = await User.create(payload);
 

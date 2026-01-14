@@ -26,6 +26,9 @@ exports.createUser = async (userData) => {
   const existUser = await User.findOne({ email: userData.email });
   if (existUser) throw new AppError('User already exist', 400);
 
+  const existUsername = await User.findOne({ username: userData.username });
+  if (existUsername) throw new AppError('Username already taken', 400); 
+
   const user = await User.create(userData);
   return user;
 };

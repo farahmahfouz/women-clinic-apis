@@ -2,12 +2,18 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const { type } = require('os');
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: [true, 'Name is required'],
+    },
+    username: {
+      type: String,
+      required: [true, 'Username is required'],
+      unique: true,
     },
     email: {
       type: String,
@@ -44,6 +50,8 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.index({ email: 1 , username: 1}, { unique: true });
 
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
