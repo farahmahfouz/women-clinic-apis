@@ -11,8 +11,14 @@ exports.createBooking = async (data, io = null) => {
   const conflict = await Booking.findOne({
     doctor,
     dateOfService,
-    'timeSlot.start': timeSlot.start,
+    $or: [
+    {
+      'timeSlot.start': { $lt: timeSlot.end },
+      'timeSlot.end': { $gt: timeSlot.start },
+    },
+  ],
   });
+  
   if (conflict) throw new AppError('Doctor already booked at this time', 400);
 
   const booking = await Booking.create(data);
