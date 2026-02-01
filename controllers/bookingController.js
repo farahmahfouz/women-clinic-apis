@@ -11,6 +11,7 @@ exports.setBookingIds = (req, res, next) => {
 exports.createBooking = catchAsync(async (req, res) => {
   const io = req.app.get('io');
   const booking = await BookingService.createBooking(req.body, io);
+
   res.status(200).json({
     status: 'success',
     message: 'Booking created successfully',
@@ -24,6 +25,17 @@ exports.getAllBookings = catchAsync(async (req, res) => {
   if (req.params.doctorId) filter = { doctor: req.params.doctorId };
   if (req.params.patientId) filter = { user: req.params.patientId };
   const bookings = await BookingService.getAllBookings(filter);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Bookings retrieved successfully',
+    results: bookings.length,
+    data: { bookings },
+  });
+});
+
+exports.getMyBookings = catchAsync(async (req, res) => {
+  const bookings = await BookingService.getMyBookings(req.user.id);
 
   res.status(200).json({
     status: 'success',
@@ -68,7 +80,6 @@ exports.cancelBooking = catchAsync(async (req, res) => {
 
 exports.getMonthlyBookings = async (req, res) => {
   const year = req.params.year * 1;
-
   const stats = await BookingService.getMonthlyBooking(year);
 
   res.status(200).json({

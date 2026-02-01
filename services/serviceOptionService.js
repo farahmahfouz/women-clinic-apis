@@ -1,8 +1,8 @@
 const ServiceOption = require('../models/serviceOptionModel');
 const AppError = require('../utils/appError');
 
-exports.getAllServiceOptions = async () => {
-  const serviceOptions = await ServiceOption.find()
+exports.getAllServiceOptions = async (filter) => {
+  const serviceOptions = await ServiceOption.find(filter);
   return serviceOptions;
 };
 
@@ -34,7 +34,6 @@ exports.updateServiceOption = async (id, data) => {
 
 exports.deleteServiceOption = async (id) => {
   const existServiceOption = await ServiceOption.findById(id);
-  if (!existServiceOption)
-    throw new AppError('ServiceOption not found', 404);
+  if (!existServiceOption) throw new AppError('ServiceOption not found', 404);
   await ServiceOption.findByIdAndDelete(id);
 };

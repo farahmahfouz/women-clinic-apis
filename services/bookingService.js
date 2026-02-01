@@ -46,6 +46,11 @@ exports.createBooking = async (data, io = null) => {
   return booking;
 };
 
+exports.getMyBookings = async (userId) => {
+  const bookings = await Booking.find({ user: userId });
+  return bookings;
+}
+
 exports.getAllBookings = async (filter) => {
   const bookings = await Booking.find(filter);
   return bookings;

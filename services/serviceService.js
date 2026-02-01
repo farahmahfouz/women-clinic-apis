@@ -3,7 +3,10 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
 exports.getAllServices = async (queryString = {}) => {
-  let query = Service.find().populate('options');
+  let query = Service.find().populate({
+    path: 'subServices',
+    select: 'name slug',
+  });
 
   const features = new APIFeatures(query, queryString)
     .filter()

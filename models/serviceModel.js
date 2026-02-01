@@ -12,6 +12,9 @@ const serviceSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    coverImage: {
+      type: String,
+    },
     slug: String,
     ratingsAverage: {
       type: Number,
@@ -28,14 +31,8 @@ const serviceSchema = new mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-serviceSchema.virtual('options', {
-  ref: 'ServiceOption',
-  foreignField: 'service',
-  localField: '_id',
-});
-
-serviceSchema.virtual('review', {
-  ref: 'Review',
+serviceSchema.virtual('subServices', {
+  ref: 'SubService',
   foreignField: 'service',
   localField: '_id',
 });

@@ -9,9 +9,11 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+
 const userRoute = require('./routes/userRoute');
 const serviceRoute = require('./routes/serviceRoute');
 const serviceOptionRoute = require('./routes/serviceOptionRoute');
+const subServiceRoute = require('./routes/subServiceRoute');
 const reviewRoute = require('./routes/reviewRoute');
 const settingRoute = require('./routes/settingRoute');
 const doctorSchedualeRoute = require('./routes/doctorSchedualeRoute');
@@ -24,17 +26,17 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || "*",
+  origin: process.env.CLIENT_URL ,
   credentials: true,
 }));
 
 // 🚦 Rate Limiting
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'Too many requests from this IP, please try again in an hour!',
-});
-app.use('/api', limiter);
+// const limiter = rateLimit({
+//   max: 100,
+//   windowMs: 60 * 60 * 1000,
+//   message: 'Too many requests from this IP, please try again in an hour!',
+// });
+// app.use('/api', limiter);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -57,7 +59,8 @@ app.use(
 
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/service', serviceRoute);
-app.use('/api/v1/sub-service', serviceOptionRoute);
+app.use('/api/v1/sub-service', subServiceRoute);
+app.use('/api/v1/sub-service-option', serviceOptionRoute);
 app.use('/api/v1/review', reviewRoute);
 app.use('/api/v1/settings', settingRoute);
 app.use('/api/v1/doctor-schedule', doctorSchedualeRoute);

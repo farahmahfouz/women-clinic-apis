@@ -9,7 +9,7 @@ const {
 
 const { auth, protectTo } = require('../middlewares/authMiddlerware');
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 // ---------- Public Routes ----------
 router.get('/', getAllServiceOptions);
@@ -23,4 +23,3 @@ router.patch('/:id', protectTo('admin'), updateServiceOption);
 router.delete('/:id', protectTo('admin'), deleteServiceOption);
 
 module.exports = router;
-

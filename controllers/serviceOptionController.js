@@ -2,7 +2,11 @@ const ServiceOptionService = require('../services/serviceOptionService');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllServiceOptions = catchAsync(async (req, res, next) => {
-  const options = await ServiceOptionService.getAllServiceOptions();
+  let filter = {};
+  if (req.params.subServiceId) filter = { subService: req.params.subServiceId };
+  if (req.params.slug) filter = { slug: req.params.slug };
+
+  const options = await ServiceOptionService.getAllServiceOptions(filter);
 
   res.status(200).json({
     status: 'success',
@@ -13,9 +17,7 @@ exports.getAllServiceOptions = catchAsync(async (req, res, next) => {
 });
 
 exports.getOneServiceOption = catchAsync(async (req, res, next) => {
-  const option = await ServiceOptionService.getOneServiceOption(
-    req.params.id
-  );
+  const option = await ServiceOptionService.getOneServiceOption(req.params.id);
 
   res.status(200).json({
     status: 'success',
@@ -25,9 +27,7 @@ exports.getOneServiceOption = catchAsync(async (req, res, next) => {
 });
 
 exports.createServiceOption = catchAsync(async (req, res, next) => {
-  const newOption = await ServiceOptionService.createServiceOption(
-    req.body
-  );
+  const newOption = await ServiceOptionService.createServiceOption(req.body);
 
   res.status(201).json({
     status: 'success',

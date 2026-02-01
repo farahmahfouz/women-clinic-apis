@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const subServiceOptionSchema = new mongoose.Schema(
   {
-    service: {
+    subService: {
       type: mongoose.Schema.ObjectId,
-      ref: 'Service',
+      ref: 'SubService',
       required: [true, 'Option must belong to a Service'],
     },
 
@@ -17,7 +17,10 @@ const subServiceOptionSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Option must have a price'],
     },
-
+    slug: {
+      type: String,
+      unique: true,
+    },
     type: {
       type: String,
       enum: ['pulse', 'session', 'package', 'ml', 'unit'],
