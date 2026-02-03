@@ -6,6 +6,7 @@ const {
   updateReview,
   deleteReview,
   setServicesUserIds,
+  resolveServiceFromOption,
 } = require('../controllers/reviewController');
 
 const { auth, protectTo } = require('../middlewares/authMiddlerware');
@@ -19,7 +20,13 @@ router.get('/:id', getOneReview);
 // ---------- Protected Routes ----------
 router.use(auth);
 
-router.post('/', protectTo('patient'), setServicesUserIds, createReview);
+router.post(
+  '/',
+  protectTo('patient'),
+  resolveServiceFromOption,
+  setServicesUserIds,
+  createReview
+);
 router.patch('/:id', updateReview);
 router.delete('/:id', deleteReview);
 

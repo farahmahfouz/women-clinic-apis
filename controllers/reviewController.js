@@ -1,5 +1,8 @@
 const ReviewService = require('../services/reviewService');
 const catchAsync = require('../utils/catchAsync');
+const ServiceOption = require('../models/serviceOptionModel');
+const SubService = require('../models/subServiceModel');
+const AppError = require('../utils/appError');
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
   let filter = {};
@@ -31,6 +34,8 @@ exports.setServicesUserIds = (req, res, next) => {
 };
 
 exports.createReview = catchAsync(async (req, res, next) => {
+  console.log('FINAL BODY BEFORE CREATE:', req.body);
+
   const review = await ReviewService.createReview(req.body);
 
   res.status(201).json({
@@ -62,3 +67,33 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+exports.resolveServiceFromOption = async (req, res, next) => {
+  console.log('INCOMING BODY:', req.body);
+
+  if (req.body.service) return next();
+
+  if (!req.body.serviceOption) {
+    return next(new AppError('ServiceOption is required', 400));
+  }
+
+  // 1. get option
+  const option = await ServiceOption.findById(req.body.serviceOption);
+  console.log(option)
+  if (!option) {
+    return next(new AppError('ServiceOption not found', 404));
+  }
+
+  // 2. get subService
+  const subService = await SubService.findById(option.subService);
+  console.log(subService)
+  if (!subService) {
+    return next(new AppError('SubService not found', 404));
+  }
+
+  // 3. set service
+  req.body.service = subService.service;
+  console.log('RESOLVED SERVICE:', req.body.service);
+
+  next();
+};
