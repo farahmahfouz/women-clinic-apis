@@ -26,7 +26,7 @@ const app = express();
 app.use(helmet());
 
 app.use(cors({
-  origin: process.env.CLIENT_URL ,
+  origin: process.env.CLIENT_URL || 'https://booking-app-inky-eight.vercel.app/',
   credentials: true,
 }));
 
