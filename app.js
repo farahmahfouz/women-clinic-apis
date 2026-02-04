@@ -22,15 +22,26 @@ const notificationRoute = require('./routes/notificationRoute');
 
 const app = express();
 
-// 🔒 Security Headers
-app.use(helmet());
+const allowedOrigins = [
+  'http://localhost:4200',
+  'https://booking-app-inky-eight.vercel.app',
+];
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'https://booking-app-inky-eight.vercel.app/',
-  credentials: true,
+  origin: 'https://booking-app-inky-eight.vercel.app', // أو domain الفرونت
+  credentials: true
 }));
 
-// 🚦 Rate Limiting
+
+// 🔒 Security Headers
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy: false,
+  })
+);
+
+// 🚦 Rate Limiting (اختياري - شغله لو محتاجه)
 // const limiter = rateLimit({
 //   max: 100,
 //   windowMs: 60 * 60 * 1000,
@@ -43,7 +54,6 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use(express.json());
-
 app.use(cookieParser());
 
 // 🛡️ Data Sanitization
