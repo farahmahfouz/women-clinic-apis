@@ -18,7 +18,6 @@ const notifiyAboutServiceSession = async () => {
 
   const bookings = await Booking.find({
     dateOfService: { $gte: startOfDay, $lte: endOfDay },
-    status: 'confirmed',
   })
 
   for (const booking of bookings) {

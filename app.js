@@ -28,10 +28,15 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: 'https://booking-app-inky-eight.vercel.app', // أو domain الفرونت
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-
 
 // 🔒 Security Headers
 app.use(
@@ -41,7 +46,7 @@ app.use(
   })
 );
 
-// 🚦 Rate Limiting (اختياري - شغله لو محتاجه)
+// 🚦 Rate Limiting 
 // const limiter = rateLimit({
 //   max: 100,
 //   windowMs: 60 * 60 * 1000,

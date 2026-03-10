@@ -19,8 +19,6 @@ exports.getAllSubServices = async (queryString = {}) => {
   return subServices;
 };
 
-
-
 exports.getSubService = async (id) => {
   const subService = await SubService.findById(id).populate('options');
 
@@ -33,13 +31,22 @@ exports.getSubService = async (id) => {
 
 exports.createSubService = async (data) => {
   const subService = await SubService.create(data);
-  return subService;
+  const populatedSubService = await SubService.findById(subService._id)
+    .populate({
+      path: 'service',
+      select: 'name',
+    });
+
+  return populatedSubService;
 };
 
 exports.updateSubService = async (id, data) => {
   const subService = await SubService.findByIdAndUpdate(id, data, {
     new: true,
     runValidators: true,
+  }).populate({
+    path: 'service',
+    select: 'name',
   });
 
   if (!subService) {

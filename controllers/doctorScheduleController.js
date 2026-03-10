@@ -2,7 +2,7 @@ const DoctorScheduleService = require('../services/doctorScheduleService');
 const catchAsync = require('../utils/catchAsync');
 
 exports.getAllDoctorSchedules = catchAsync(async (req, res, next) => {
-  const schedules = await DoctorScheduleService.getAllDrSchedule();
+  const schedules = await DoctorScheduleService.getAllDrSchedule(req.query);
 
   res.status(200).json({
     status: 'success',

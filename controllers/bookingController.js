@@ -1,3 +1,4 @@
+const Booking = require('../models/bookingModel');
 const BookingService = require('../services/bookingService');
 const catchAsync = require('../utils/catchAsync');
 
@@ -24,12 +25,14 @@ exports.getAllBookings = catchAsync(async (req, res) => {
   let filter = {};
   if (req.params.doctorId) filter = { doctor: req.params.doctorId };
   if (req.params.patientId) filter = { user: req.params.patientId };
-  const bookings = await BookingService.getAllBookings(filter);
+  const totalCount = await Booking.countDocuments(filter);
+  const bookings = await BookingService.getAllBookings(filter, req.query);
 
   res.status(200).json({
     status: 'success',
     message: 'Bookings retrieved successfully',
     results: bookings.length,
+    totalCount,
     data: { bookings },
   });
 });
@@ -88,13 +91,12 @@ exports.getMonthlyBookings = async (req, res) => {
   });
 };
 
-
 exports.getMostBookedServices = async (req, res) => {
   const stats = await BookingService.getMostBookedServices();
-  
+
   res.status(200).json({
-    status: "success",
+    status: 'success',
     results: stats.length,
-    data: stats
+    data: stats,
   });
 };

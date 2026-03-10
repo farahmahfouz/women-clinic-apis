@@ -1,10 +1,21 @@
 const DoctorSchedule = require('../models/doctorScheduleModel');
 const User = require('../models/userModel');
+const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 
-exports.getAllDrSchedule = async () => {
-  const schedule = await DoctorSchedule.find();
-  return schedule;
+exports.getAllDrSchedule = async (queryString = {}) => {
+  let query = DoctorSchedule.find().populate('doctor');
+
+  const features = new APIFeatures(query, queryString)
+    .filter()
+    .search()
+    .sort()
+    .limitFields()
+    .pagination();
+
+  const schedules = await features.query;
+
+  return schedules;
 };
 
 exports.getDrSchedule = async (doctorId) => {

@@ -1,6 +1,7 @@
 const Booking = require('../models/bookingModel');
 const AppError = require('../utils/appError');
 const NotificationService = require('./notificationService');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.createBooking = async (data, io = null) => {
   const { doctor, dateOfService, timeSlot } = data;
@@ -51,8 +52,19 @@ exports.getMyBookings = async (userId) => {
   return bookings;
 }
 
-exports.getAllBookings = async (filter) => {
-  const bookings = await Booking.find(filter);
+exports.getAllBookings = async (filter = {}, queryString = {}) => {
+  let query = Booking.find(filter)
+    .populate('doctor')
+    .populate('user');
+
+  const features = new APIFeatures(query, queryString)
+    .filter()
+    .search()
+    .sort()
+    .limitFields()
+    .pagination();
+
+  const bookings = await features.query;
   return bookings;
 };
 
