@@ -24,7 +24,7 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:4200',
-  'https://booking-app-inky-eight.vercel.app',
+  'https://hera-beauty-clinic.vercel.app',
 ];
 
 app.use(cors({

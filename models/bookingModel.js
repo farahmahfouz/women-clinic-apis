@@ -26,8 +26,8 @@ const bookingSchema = new mongoose.Schema(
         price: {
           type: Number,
           required: true,
-        }
-      }
+        },
+      },
     ],
 
     totalPrice: {
@@ -41,6 +41,10 @@ const bookingSchema = new mongoose.Schema(
     },
 
     timeSlot: {
+      slotId: {
+        type: mongoose.Schema.ObjectId,
+        required: true,
+      },
       start: {
         type: String,
         required: true,
@@ -50,7 +54,7 @@ const bookingSchema = new mongoose.Schema(
         type: String,
         required: true,
         match: /^\d{2}:\d{2}$/,
-      }
+      },
     },
 
     status: {
@@ -64,6 +68,16 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+bookingSchema.index(
+  {
+    doctor: 1,
+    dateOfService: 1,
+    'timeSlot.start': 1,
+    'timeSlot.end': 1,
+  },
+  { unique: true }
+);
+
 bookingSchema.pre(/^find/, function (next) {
   this.populate('user', 'name phone')
     .populate('doctor', 'name')
@@ -71,6 +85,27 @@ bookingSchema.pre(/^find/, function (next) {
   next();
 });
 
+bookingSchema.post('save', async function () {
+  if (this.timeSlot?.slotId) {
+    await DoctorSchedule.updateOne(
+      { 'availability.slots._id': this.timeSlot.slotId },
+      { $set: { 'availability.$[].slots.$[slot].isBooked': true } },
+      { arrayFilters: [{ 'slot._id': this.timeSlot.slotId }] }
+    );
+  }
+});
+
+bookingSchema.post('findOneAndUpdate', async function () {
+  const booking = await this.model.findOne(this.getQuery());
+
+  if (booking?.status === 'cancelled' && booking.timeSlot?.slotId) {
+    await DoctorSchedule.updateOne(
+      { 'availability.slots._id': booking.timeSlot.slotId },
+      { $set: { 'availability.$[].slots.$[slot].isBooked': false } },
+      { arrayFilters: [{ 'slot._id': booking.timeSlot.slotId }] }
+    );
+  }
+});
 
 bookingSchema.statics.validateDoctorAvailability = async function (
   doctorId,
@@ -91,16 +126,17 @@ bookingSchema.statics.validateDoctorAvailability = async function (
   if (!dayAvailability)
     throw new AppError('Doctor is not available on this day', 400);
 
-  const isValidTime = dayAvailability.slots.some(
-    (slot) => newTime.start >= slot.start && newTime.end <= slot.end
+  const slot = dayAvailability.slots.find(
+    (s) => s._id.toString() === newTime.slotId.toString()
   );
 
-  if (!isValidTime)
-    throw new AppError("Selected time is outside doctor's working hours", 400);
+  if (!slot) throw new AppError('Selected time slot not found', 400);
+
+  if (slot.isBooked)
+    throw new AppError('This time slot is already booked', 400);
 
   return true;
 };
-
 
 const Booking = mongoose.model('Booking', bookingSchema);
 module.exports = Booking;

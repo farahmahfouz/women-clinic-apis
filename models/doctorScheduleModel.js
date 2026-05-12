@@ -24,6 +24,7 @@ const doctorScheduleSchema = new mongoose.Schema(
           {
             start: { type: String, match: /^\d{2}:\d{2}$/ },
             end: { type: String, match: /^\d{2}:\d{2}$/ },
+            isBooked: { type: Boolean, default: false },
           },
         ],
       },

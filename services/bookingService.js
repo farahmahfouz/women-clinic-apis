@@ -1,4 +1,5 @@
 const Booking = require('../models/bookingModel');
+const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const NotificationService = require('./notificationService');
 const APIFeatures = require('../utils/apiFeatures');
@@ -12,34 +13,52 @@ exports.createBooking = async (data, io = null) => {
   const conflict = await Booking.findOne({
     doctor,
     dateOfService,
-    $or: [
-    {
-      'timeSlot.start': { $lt: timeSlot.end },
-      'timeSlot.end': { $gt: timeSlot.start },
-    },
-  ],
+    'timeSlot.start': { $lt: timeSlot.end },
+    'timeSlot.end': { $gt: timeSlot.start },
   });
-  
+
   if (conflict) throw new AppError('Doctor already booked at this time', 400);
 
   const booking = await Booking.create(data);
 
-  try {
-    await NotificationService.createNotification({
-      receiver: booking.doctor,
-      type: 'new_booking',
-      title: 'New Booking',
-      message: `New booking on ${booking.dateOfService}`,
-      data: { bookingId: booking._id },
-    }, io);
+  const admins = await User.find({ role: 'admin' }).select('_id');
 
-    await NotificationService.createNotification({
-      receiver: booking.user,
-      type: 'booking_confirmed',
-      title: 'Booking Confirmed',
-      message: `Your booking is confirmed for ${booking.dateOfService}`,
-      data: { bookingId: booking._id },
-    }, io);
+  try {
+    await NotificationService.createNotification(
+      {
+        receiver: booking.doctor,
+        type: 'new_booking',
+        title: 'New Booking',
+        message: `New booking on ${booking.dateOfService}`,
+        data: { bookingId: booking._id },
+      },
+      io
+    );
+
+    await NotificationService.createNotification(
+      {
+        receiver: booking.user,
+        type: 'booking_confirmed',
+        title: 'Booking Confirmed',
+        message: `Your booking is confirmed for ${booking.dateOfService}`,
+        data: { bookingId: booking._id },
+      },
+      io,
+      { channels: ['in_app', 'email'] }
+    );
+
+    for (const admin of admins) {
+      await NotificationService.createNotification(
+        {
+          receiver: admin._id,
+          type: 'new_booking_admin',
+          title: 'New Booking Created',
+          message: `New booking created for doctor ${booking.doctor.name}`,
+          data: { bookingId: booking._id },
+        },
+        io
+      );
+    }
   } catch (err) {
     console.error('Notification failed:', err.message);
   }
@@ -50,12 +69,10 @@ exports.createBooking = async (data, io = null) => {
 exports.getMyBookings = async (userId) => {
   const bookings = await Booking.find({ user: userId });
   return bookings;
-}
+};
 
 exports.getAllBookings = async (filter = {}, queryString = {}) => {
-  let query = Booking.find(filter)
-    .populate('doctor')
-    .populate('user');
+  let query = Booking.find(filter).populate('doctor').populate('user');
 
   const features = new APIFeatures(query, queryString)
     .filter()
@@ -111,21 +128,28 @@ exports.cancelBooking = async (id, io = null) => {
   await booking.save();
 
   try {
-    await NotificationService.createNotification({
-      receiver: booking.doctor,
-      type: 'booking_cancelled',
-      title: 'Booking Cancelled',
-      message: `Booking on ${booking.dateOfService} was cancelled`,
-      data: { bookingId: booking._id },
-    }, io);
+    await NotificationService.createNotification(
+      {
+        receiver: booking.doctor,
+        type: 'booking_cancelled',
+        title: 'Booking Cancelled',
+        message: `Booking on ${booking.dateOfService} was cancelled`,
+        data: { bookingId: booking._id },
+      },
+      io
+    );
 
-    await NotificationService.createNotification({
-      receiver: booking.user,
-      type: 'booking_cancelled',
-      title: 'Booking Cancelled',
-      message: `Your booking has been cancelled`,
-      data: { bookingId: booking._id },
-    }, io);
+    await NotificationService.createNotification(
+      {
+        receiver: booking.user,
+        type: 'booking_cancelled',
+        title: 'Booking Cancelled',
+        message: `Your booking has been cancelled`,
+        data: { bookingId: booking._id },
+      },
+      io,
+      { channels: ['in_app', 'email'] }
+    );
   } catch (err) {
     console.error('Notification failed:', err.message);
   }
